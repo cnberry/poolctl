@@ -29,6 +29,9 @@ Think: UNIX tool, not enterprise sludge.
 - **Treat live pool hardware with respect.**
   Avoid risky or surprising writes. Add guardrails around mutating commands.
 
+- **Hide vendor friction when we understand it.**
+  If the Pentair workflow requires nonsense like canceling delay before enabling the cleaner, `poolctl` should absorb that complexity.
+
 ## Current shape
 
 - `poolctl/gateway.py` — adapter discovery + live status fetch
@@ -38,7 +41,7 @@ Think: UNIX tool, not enterprise sludge.
 
 ## Near-term roadmap
 
-1. Cleaner-focused smart control, including handling system delay friction
+1. Cleaner-focused smart control, especially clearing system delay before enabling the cleaner
 2. Robust circuit lookup by name/id
 3. Safe circuit on/off commands
 4. Better structured JSON output
