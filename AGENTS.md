@@ -32,21 +32,25 @@ Think: UNIX tool, not enterprise sludge.
 - **Hide vendor friction only when explicitly desired.**
   Prefer small sharp commands over over-smart orchestration. Keep cleaner control and delay cancellation as separate explicit commands unless the user wants otherwise.
 
+- **Update docs when the shape settles.**
+  When a change feels right, update `README.md` and `AGENTS.md` in the same stretch of work. Clean code and current docs go together.
+
 ## Current shape
 
-- `poolctl/gateway.py` — adapter discovery + live status fetch
+- `poolctl/gateway.py` — adapter discovery, cached adapter resolution, and live status fetch
+- `poolctl/config.py` — tiny config/cache for adapter connection details
 - `poolctl/render.py` — summary shaping and human-readable output
-- `poolctl/control.py` — small control helpers for cleaner and delay actions
+- `poolctl/control.py` — small explicit control helpers for cleaner and delay actions
 - `poolctl/protocol.py` — protocol gaps not covered by screenlogicpy
 - `poolctl/cli.py` — command-line entrypoint
-- `tests/` — unit tests for pure logic/rendering
+- `tests/` — unit tests for pure logic/rendering/config helpers
 
 ## Near-term roadmap
 
-1. Robust circuit lookup by name/id
-2. Dead-simple cleaner and delay commands
+1. Keep the cleaner/delay interface sharp and boring
+2. Robust circuit lookup by name/id
 3. Better structured JSON output
-4. Config file / adapter selection overrides (now including cached adapter + `--host`)
+4. Add explicit config commands if useful (`config show`, maybe `config set-host`)
 5. Optional Rust port later if the Python shape proves right
 
 ## Style
