@@ -1,6 +1,6 @@
-# poolctl
+# poolctl 🌊🤖🔱
 
-A terminal-first Pentair ScreenLogic exploration and control tool.
+A terminal-first Pentair ScreenLogic exploration and control tool for taming a mildly cursed pool box over the LAN.
 
 ## Goals
 
@@ -12,6 +12,16 @@ A terminal-first Pentair ScreenLogic exploration and control tool.
 ## Status
 
 Early reconnaissance project, now split into a small package + CLI with basic unit tests.
+
+## Visual identity
+
+```text
+      .-.
+   .-(   )-.        poolctl
+  (___.__)__)       🌊🤖🔱
+     /___\\
+    /_____\\
+```
 
 ## Commands
 
@@ -35,3 +45,7 @@ pip install pytest
 PYTHONPATH=. pytest -q
 python poolctl.py status
 ```
+
+## Notes for agents and future-us
+
+See `AGENTS.md` for project principles, current shape, and the near-term roadmap.
