@@ -89,18 +89,24 @@ async def set_circuit_state(circuit_name: str, enabled: bool) -> dict[str, Any]:
     await gateway.async_connect(**adapter)
     try:
         canceled_delay = False
-        if enabled and delay_active(before_delay):
-            await async_request_cancel_delay(gateway._protocol, gateway._max_retries)
-            canceled_delay = True
-            await gateway.async_update()
 
         await gateway.async_set_circuit(circuit["id"], 1 if enabled else 0)
         await gateway.async_update()
 
+        current_data = gateway.get_data()
+        updated = summarize({"adapter": adapter, "data": current_data})
+        current = find_circuit(updated, circuit["name"])
+        current_delay = extract_delay(current_data)
+
+        if enabled and current["state"] != "on" and current_delay.get("cleaner"):
+            await async_request_cancel_delay(gateway._protocol, gateway._max_retries)
+            canceled_delay = True
+            await gateway.async_update()
+
         settled = await settle_circuit_state(gateway, adapter, circuit["name"])
         final_state = settled["last"] or {
-            "current": circuit,
-            "delay": before_delay,
+            "current": current,
+            "delay": current_delay,
         }
         return {
             "requested": {"name": circuit["name"], "id": circuit["id"], "enabled": enabled},
