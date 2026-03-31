@@ -30,6 +30,9 @@ Early reconnaissance project, now split into a small package + CLI with basic un
 - `poolctl circuits`
 - `poolctl bodies`
 - `poolctl pumps`
+- `poolctl cleaner status`
+- `poolctl cleaner on --yes`
+- `poolctl cleaner off --yes`
 
 JSON output is available with `--json`, and raw status payloads can be dumped with:
 

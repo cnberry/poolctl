@@ -38,11 +38,12 @@ Think: UNIX tool, not enterprise sludge.
 
 ## Near-term roadmap
 
-1. Robust circuit lookup by name/id
-2. Safe circuit on/off commands
-3. Better structured JSON output
-4. Config file / adapter selection overrides
-5. Optional Rust port later if the Python shape proves right
+1. Cleaner-focused smart control, including handling system delay friction
+2. Robust circuit lookup by name/id
+3. Safe circuit on/off commands
+4. Better structured JSON output
+5. Config file / adapter selection overrides
+6. Optional Rust port later if the Python shape proves right
 
 ## Style
 
