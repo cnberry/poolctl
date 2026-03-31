@@ -1,6 +1,7 @@
 import pytest
 
 from poolctl.control import delay_active, extract_delay, find_circuit, normalize_name
+from poolctl.protocol import CANCEL_DELAY_QUERY
 
 
 @pytest.fixture
@@ -50,3 +51,7 @@ def test_extract_delay():
         }
     }
     assert extract_delay(data) == {"cleaner": 1, "pool": 0, "spa": 2}
+
+
+def test_cancel_delay_opcode_is_pinned():
+    assert CANCEL_DELAY_QUERY == 12580
