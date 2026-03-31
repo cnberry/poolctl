@@ -55,7 +55,6 @@ async def set_circuit_state(circuit_name: str, enabled: bool, host: str | None =
     payload = await fetch_status(host)
     summary = summarize(payload)
     circuit = find_circuit(summary, circuit_name)
-    before_delay = extract_delay(payload["data"])
 
     adapter = await resolve_adapter(host)
     gateway = ScreenLogicGateway()
@@ -65,27 +64,18 @@ async def set_circuit_state(circuit_name: str, enabled: bool, host: str | None =
         await gateway.async_update()
         current_data = gateway.get_data()
         updated = summarize({"adapter": adapter, "data": current_data})
-        return {
-            "requested": {"name": circuit["name"], "id": circuit["id"], "enabled": enabled},
-            "delay_before": before_delay,
-            "delay_after": extract_delay(current_data),
-            "current": find_circuit(updated, circuit["name"]),
-        }
+        return find_circuit(updated, circuit["name"])
     finally:
         await gateway.async_disconnect()
 
 
-async def cancel_delay(host: str | None = None) -> dict[str, Any]:
-    payload = await fetch_status(host)
-    before = extract_delay(payload["data"])
-
+async def cancel_delay(host: str | None = None) -> dict[str, int | None]:
     adapter = await resolve_adapter(host)
     gateway = ScreenLogicGateway()
     await gateway.async_connect(**adapter)
     try:
         await async_request_cancel_delay(gateway._protocol, gateway._max_retries)
         await gateway.async_update()
-        after = extract_delay(gateway.get_data())
-        return {"before": before, "after": after}
+        return extract_delay(gateway.get_data())
     finally:
         await gateway.async_disconnect()

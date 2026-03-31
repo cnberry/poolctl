@@ -71,11 +71,7 @@ async def async_main() -> None:
         if args.json:
             print(json.dumps(result, indent=2, sort_keys=True, default=str))
         else:
-            requested = result["requested"]
-            current = result["current"]
-            print(f"Requested cleaner {'on' if requested['enabled'] else 'off'}; current state is {current['state']}")
-            print(f"Delay before: cleaner={result['delay_before']['cleaner']} pool={result['delay_before']['pool']} spa={result['delay_before']['spa']}")
-            print(f"Delay after:  cleaner={result['delay_after']['cleaner']} pool={result['delay_after']['pool']} spa={result['delay_after']['spa']}")
+            print(f"Cleaner: {result['state']}")
         return
 
     if args.command == "delay":
@@ -94,10 +90,7 @@ async def async_main() -> None:
         if args.json:
             print(json.dumps(result, indent=2, sort_keys=True, default=str))
         else:
-            before = result['before']
-            after = result['after']
-            print(f"Delay before: cleaner={before['cleaner']} pool={before['pool']} spa={before['spa']}")
-            print(f"Delay after:  cleaner={after['cleaner']} pool={after['pool']} spa={after['spa']}")
+            print(f"Delays: cleaner={result['cleaner']} pool={result['pool']} spa={result['spa']}")
         return
 
     payload = await fetch_status(args.host)
