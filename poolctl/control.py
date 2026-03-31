@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 from typing import Any
 
 from screenlogicpy import ScreenLogicGateway
@@ -28,25 +27,6 @@ def find_circuit(summary: dict[str, Any], query: str) -> dict[str, Any]:
     raise ValueError(f"Ambiguous circuit name {query!r}: {names}")
 
 
-async def cleaner_status() -> dict[str, Any]:
-    payload = await fetch_status()
-    summary = summarize(payload)
-    sensors = payload["data"].get("controller", {}).get("sensor", {})
-    circuit = find_circuit(summary, "cleaner")
-    return {
-        "circuit": circuit,
-        "delay": {
-            "cleaner": sensors.get("cleaner_delay", {}).get("value"),
-            "pool": sensors.get("pool_delay", {}).get("value"),
-            "spa": sensors.get("spa_delay", {}).get("value"),
-        },
-    }
-
-
-def delay_active(delay: dict[str, int | None]) -> bool:
-    return any((delay.get("cleaner"), delay.get("pool"), delay.get("spa")))
-
-
 def extract_delay(data: dict[str, Any]) -> dict[str, int | None]:
     sensors = data.get("controller", {}).get("sensor", {})
     return {
@@ -56,43 +36,19 @@ def extract_delay(data: dict[str, Any]) -> dict[str, int | None]:
     }
 
 
-async def settle_circuit_state(
-    gateway: ScreenLogicGateway,
-    adapter: dict[str, Any],
-    circuit_name: str,
-    *,
-    attempts: int = 5,
-    delay_seconds: float = 1.0,
-) -> dict[str, Any]:
-    snapshots = []
-    last = None
-    for _ in range(attempts):
-        await asyncio.sleep(delay_seconds)
-        await gateway.async_update()
-        current_data = gateway.get_data()
-        updated = summarize({"adapter": adapter, "data": current_data})
-        current = find_circuit(updated, circuit_name)
-        delay = extract_delay(current_data)
-        last = {"current": current, "delay": delay}
-        snapshots.append(last)
-    return {"last": last, "snapshots": snapshots}
+async def cleaner_status() -> dict[str, Any]:
+    payload = await fetch_status()
+    summary = summarize(payload)
+    circuit = find_circuit(summary, "cleaner")
+    return {
+        "circuit": circuit,
+        "delay": extract_delay(payload["data"]),
+    }
 
 
-async def settle_after_cancel_delay(
-    gateway: ScreenLogicGateway,
-    adapter: dict[str, Any],
-    circuit_name: str,
-    *,
-    attempts: int = 4,
-    delay_seconds: float = 1.0,
-) -> dict[str, Any]:
-    return await settle_circuit_state(
-        gateway,
-        adapter,
-        circuit_name,
-        attempts=attempts,
-        delay_seconds=delay_seconds,
-    )
+async def delay_status() -> dict[str, int | None]:
+    payload = await fetch_status()
+    return extract_delay(payload["data"])
 
 
 async def set_circuit_state(circuit_name: str, enabled: bool) -> dict[str, Any]:
@@ -105,37 +61,31 @@ async def set_circuit_state(circuit_name: str, enabled: bool) -> dict[str, Any]:
     gateway = ScreenLogicGateway()
     await gateway.async_connect(**adapter)
     try:
-        canceled_delay = False
-
         await gateway.async_set_circuit(circuit["id"], 1 if enabled else 0)
         await gateway.async_update()
-
         current_data = gateway.get_data()
         updated = summarize({"adapter": adapter, "data": current_data})
-        current = find_circuit(updated, circuit["name"])
-        current_delay = extract_delay(current_data)
-
-        if enabled and current_delay.get("cleaner"):
-            await async_request_cancel_delay(gateway._protocol, gateway._max_retries)
-            canceled_delay = True
-            canceled_settle = await settle_after_cancel_delay(gateway, adapter, circuit["name"])
-            last_after_cancel = canceled_settle["last"] or {"current": current, "delay": current_delay}
-            current = last_after_cancel["current"]
-            current_delay = last_after_cancel["delay"]
-
-        settled = await settle_circuit_state(gateway, adapter, circuit["name"])
-        final_state = settled["last"] or {
-            "current": current,
-            "delay": current_delay,
-        }
         return {
             "requested": {"name": circuit["name"], "id": circuit["id"], "enabled": enabled},
-            "canceled_delay": canceled_delay,
             "delay_before": before_delay,
-            "delay_after": final_state["delay"],
-            "current": final_state["current"],
-            "snapshots": settled["snapshots"],
-            "confirmed": final_state["current"]["state"] == ("on" if enabled else "off"),
+            "delay_after": extract_delay(current_data),
+            "current": find_circuit(updated, circuit["name"]),
         }
+    finally:
+        await gateway.async_disconnect()
+
+
+async def cancel_delay() -> dict[str, Any]:
+    payload = await fetch_status()
+    before = extract_delay(payload["data"])
+
+    adapter = await discover_adapter()
+    gateway = ScreenLogicGateway()
+    await gateway.async_connect(**adapter)
+    try:
+        await async_request_cancel_delay(gateway._protocol, gateway._max_retries)
+        await gateway.async_update()
+        after = extract_delay(gateway.get_data())
+        return {"before": before, "after": after}
     finally:
         await gateway.async_disconnect()
