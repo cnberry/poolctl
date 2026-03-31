@@ -88,4 +88,4 @@ Clean code. Good code. Updated docs.
 ## Notes for agents and future-us
 
 See `AGENTS.md` for project principles, current shape, and the near-term roadmap.
-There is also a workspace-level skill at `../skills/poolctl/SKILL.md` so Botty can use this CLI directly from chat requests.
+`SKILL.md` lives at the repo root so Botty can use this CLI directly from chat requests.
