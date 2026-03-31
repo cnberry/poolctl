@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import json
 
+from poolctl.control import cleaner_status, set_circuit_state
 from poolctl.gateway import discover_adapter, fetch_status
 from poolctl.render import render_bodies, render_circuits, render_pumps, render_status, summarize
 
@@ -21,6 +22,15 @@ async def async_main() -> None:
         if command == "status":
             sub.add_argument("--raw", action="store_true")
 
+    cleaner_parser = subparsers.add_parser("cleaner")
+    cleaner_sub = cleaner_parser.add_subparsers(dest="cleaner_command", required=True)
+    cleaner_status_parser = cleaner_sub.add_parser("status")
+    cleaner_status_parser.add_argument("--json", action="store_true")
+    for name in ("on", "off"):
+        cmd = cleaner_sub.add_parser(name)
+        cmd.add_argument("--yes", action="store_true", help="actually perform the hardware write")
+        cmd.add_argument("--json", action="store_true")
+
     args = parser.parse_args()
 
     if args.command == "discover":
@@ -29,6 +39,38 @@ async def async_main() -> None:
             print(json.dumps(adapter, indent=2, sort_keys=True))
         else:
             print(f"{adapter['name']} @ {adapter['ip']}:{adapter['port']}")
+        return
+
+    if args.command == "cleaner":
+        if args.cleaner_command == "status":
+            status = await cleaner_status()
+            if args.json:
+                print(json.dumps(status, indent=2, sort_keys=True, default=str))
+            else:
+                circuit = status["circuit"]
+                delay = status["delay"]
+                print(f"Cleaner: {circuit['state']} (circuit {circuit['id']}: {circuit['name']})")
+                print(
+                    f"Delays: cleaner={delay['cleaner']} pool={delay['pool']} spa={delay['spa']}"
+                )
+            return
+
+        enabled = args.cleaner_command == "on"
+        if not args.yes:
+            action = "on" if enabled else "off"
+            raise SystemExit(
+                f"Refusing to turn cleaner {action} without --yes. Run: poolctl cleaner {action} --yes"
+            )
+
+        result = await set_circuit_state("Cleaner", enabled)
+        if args.json:
+            print(json.dumps(result, indent=2, sort_keys=True, default=str))
+        else:
+            requested = result["requested"]
+            current = result["current"]
+            print(
+                f"Requested cleaner {'on' if requested['enabled'] else 'off'}; current state is {current['state']}"
+            )
         return
 
     payload = await fetch_status()
