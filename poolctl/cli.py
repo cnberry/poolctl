@@ -11,6 +11,7 @@ from poolctl.render import render_bodies, render_circuits, render_pumps, render_
 
 async def async_main() -> None:
     parser = argparse.ArgumentParser(prog="poolctl")
+    parser.add_argument("--host", help="connect directly to a specific ScreenLogic adapter IP")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     discover_parser = subparsers.add_parser("discover")
@@ -51,7 +52,7 @@ async def async_main() -> None:
 
     if args.command == "cleaner":
         if args.cleaner_command == "status":
-            status = await cleaner_status()
+            status = await cleaner_status(args.host)
             if args.json:
                 print(json.dumps(status, indent=2, sort_keys=True, default=str))
             else:
@@ -66,7 +67,7 @@ async def async_main() -> None:
             action = "on" if enabled else "off"
             raise SystemExit(f"Refusing to turn cleaner {action} without --yes. Run: poolctl cleaner {action} --yes")
 
-        result = await set_circuit_state("Cleaner", enabled)
+        result = await set_circuit_state("Cleaner", enabled, args.host)
         if args.json:
             print(json.dumps(result, indent=2, sort_keys=True, default=str))
         else:
@@ -79,7 +80,7 @@ async def async_main() -> None:
 
     if args.command == "delay":
         if args.delay_command == "status":
-            status = await delay_status()
+            status = await delay_status(args.host)
             if args.json:
                 print(json.dumps(status, indent=2, sort_keys=True, default=str))
             else:
@@ -89,7 +90,7 @@ async def async_main() -> None:
         if not args.yes:
             raise SystemExit("Refusing to cancel delays without --yes. Run: poolctl delay cancel --yes")
 
-        result = await cancel_delay()
+        result = await cancel_delay(args.host)
         if args.json:
             print(json.dumps(result, indent=2, sort_keys=True, default=str))
         else:
@@ -99,7 +100,7 @@ async def async_main() -> None:
             print(f"Delay after:  cleaner={after['cleaner']} pool={after['pool']} spa={after['spa']}")
         return
 
-    payload = await fetch_status()
+    payload = await fetch_status(args.host)
     if args.command == "status" and args.raw:
         print(json.dumps(payload, indent=2, sort_keys=True, default=str))
         return
