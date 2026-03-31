@@ -78,6 +78,23 @@ async def settle_circuit_state(
     return {"last": last, "snapshots": snapshots}
 
 
+async def settle_after_cancel_delay(
+    gateway: ScreenLogicGateway,
+    adapter: dict[str, Any],
+    circuit_name: str,
+    *,
+    attempts: int = 4,
+    delay_seconds: float = 1.0,
+) -> dict[str, Any]:
+    return await settle_circuit_state(
+        gateway,
+        adapter,
+        circuit_name,
+        attempts=attempts,
+        delay_seconds=delay_seconds,
+    )
+
+
 async def set_circuit_state(circuit_name: str, enabled: bool) -> dict[str, Any]:
     payload = await fetch_status()
     summary = summarize(payload)
@@ -101,7 +118,13 @@ async def set_circuit_state(circuit_name: str, enabled: bool) -> dict[str, Any]:
         if enabled and current["state"] != "on" and current_delay.get("cleaner"):
             await async_request_cancel_delay(gateway._protocol, gateway._max_retries)
             canceled_delay = True
-            await gateway.async_update()
+            canceled_settle = await settle_after_cancel_delay(gateway, adapter, circuit["name"])
+            last_after_cancel = canceled_settle["last"] or {"current": current, "delay": current_delay}
+            current = last_after_cancel["current"]
+            current_delay = last_after_cancel["delay"]
+            if current["state"] != "on":
+                await gateway.async_set_circuit(circuit["id"], 1)
+                await gateway.async_update()
 
         settled = await settle_circuit_state(gateway, adapter, circuit["name"])
         final_state = settled["last"] or {
