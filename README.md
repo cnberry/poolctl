@@ -11,4 +11,27 @@ A terminal-first Pentair ScreenLogic exploration and control tool.
 
 ## Status
 
-Early reconnaissance project. Starting with Python for hardware validation and rapid iteration.
+Early reconnaissance project, now split into a small package + CLI with basic unit tests.
+
+## Commands
+
+- `poolctl discover`
+- `poolctl status`
+- `poolctl circuits`
+- `poolctl bodies`
+- `poolctl pumps`
+
+JSON output is available with `--json`, and raw status payloads can be dumped with:
+
+- `poolctl status --raw`
+
+## Development
+
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -r requirements.txt
+pip install pytest
+PYTHONPATH=. pytest -q
+python poolctl.py status
+```
