@@ -45,6 +45,8 @@ Think: UNIX tool, not enterprise sludge.
 - `poolctl/cli.py` — command-line entrypoint
 - `tests/` — unit tests for pure logic/rendering/config helpers
 
+There is also a workspace-level skill at `../skills/poolctl/SKILL.md` so Botty can use this CLI directly when Chris asks for pool actions in chat.
+
 ## Near-term roadmap
 
 1. Keep the cleaner/delay interface sharp and boring
