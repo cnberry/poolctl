@@ -37,6 +37,8 @@ Early reconnaissance project, now split into a small package + CLI with basic un
 - `poolctl delay status`
 - `poolctl delay cancel --yes`
 
+Mutating commands print compact results by default; use `--json` for structured output.
+
 JSON output is available with `--json`, and raw status payloads can be dumped with:
 
 - `poolctl status --raw`
