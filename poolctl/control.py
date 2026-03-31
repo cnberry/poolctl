@@ -4,7 +4,7 @@ from typing import Any
 
 from screenlogicpy import ScreenLogicGateway
 
-from poolctl.gateway import discover_adapter, fetch_status
+from poolctl.gateway import discover_adapter, fetch_status, resolve_adapter
 from poolctl.protocol import async_request_cancel_delay
 from poolctl.render import summarize
 
@@ -36,8 +36,8 @@ def extract_delay(data: dict[str, Any]) -> dict[str, int | None]:
     }
 
 
-async def cleaner_status() -> dict[str, Any]:
-    payload = await fetch_status()
+async def cleaner_status(host: str | None = None) -> dict[str, Any]:
+    payload = await fetch_status(host)
     summary = summarize(payload)
     circuit = find_circuit(summary, "cleaner")
     return {
@@ -46,18 +46,18 @@ async def cleaner_status() -> dict[str, Any]:
     }
 
 
-async def delay_status() -> dict[str, int | None]:
-    payload = await fetch_status()
+async def delay_status(host: str | None = None) -> dict[str, int | None]:
+    payload = await fetch_status(host)
     return extract_delay(payload["data"])
 
 
-async def set_circuit_state(circuit_name: str, enabled: bool) -> dict[str, Any]:
-    payload = await fetch_status()
+async def set_circuit_state(circuit_name: str, enabled: bool, host: str | None = None) -> dict[str, Any]:
+    payload = await fetch_status(host)
     summary = summarize(payload)
     circuit = find_circuit(summary, circuit_name)
     before_delay = extract_delay(payload["data"])
 
-    adapter = await discover_adapter()
+    adapter = await resolve_adapter(host)
     gateway = ScreenLogicGateway()
     await gateway.async_connect(**adapter)
     try:
@@ -75,11 +75,11 @@ async def set_circuit_state(circuit_name: str, enabled: bool) -> dict[str, Any]:
         await gateway.async_disconnect()
 
 
-async def cancel_delay() -> dict[str, Any]:
-    payload = await fetch_status()
+async def cancel_delay(host: str | None = None) -> dict[str, Any]:
+    payload = await fetch_status(host)
     before = extract_delay(payload["data"])
 
-    adapter = await discover_adapter()
+    adapter = await resolve_adapter(host)
     gateway = ScreenLogicGateway()
     await gateway.async_connect(**adapter)
     try:

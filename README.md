@@ -26,6 +26,7 @@ Early reconnaissance project, now split into a small package + CLI with basic un
 ## Commands
 
 - `poolctl discover`
+- `poolctl --host 192.168.4.33 status`
 - `poolctl status`
 - `poolctl circuits`
 - `poolctl bodies`
@@ -61,6 +62,12 @@ just test
 just status
 just circuits
 ```
+
+The adapter discovered on first successful discovery/connect is cached in:
+
+- `~/.config/poolctl/config.json`
+
+Subsequent commands use the configured adapter first, with discovery available as a fallback or explicit command.
 
 ## Notes for agents and future-us
 
