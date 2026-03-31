@@ -37,6 +37,8 @@ JSON output is available with `--json`, and raw status payloads can be dumped wi
 
 ## Development
 
+Classic direct shell flow:
+
 ```bash
 python3 -m venv .venv
 . .venv/bin/activate
@@ -44,6 +46,15 @@ pip install -r requirements.txt
 pip install pytest
 PYTHONPATH=. pytest -q
 python poolctl.py status
+```
+
+Or, if you have `just` installed:
+
+```bash
+just setup
+just test
+just status
+just circuits
 ```
 
 ## Notes for agents and future-us
