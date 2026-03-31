@@ -29,25 +29,25 @@ Think: UNIX tool, not enterprise sludge.
 - **Treat live pool hardware with respect.**
   Avoid risky or surprising writes. Add guardrails around mutating commands.
 
-- **Hide vendor friction when we understand it.**
-  If the Pentair workflow requires nonsense like canceling delay before enabling the cleaner, `poolctl` should absorb that complexity.
-  For cleaner enable specifically, the preferred sequence is: try enable -> query status -> if cleaner delay is active, cancel delay -> wait for controller settle -> confirm.
+- **Hide vendor friction only when explicitly desired.**
+  Prefer small sharp commands over over-smart orchestration. Keep cleaner control and delay cancellation as separate explicit commands unless the user wants otherwise.
 
 ## Current shape
 
 - `poolctl/gateway.py` — adapter discovery + live status fetch
 - `poolctl/render.py` — summary shaping and human-readable output
+- `poolctl/control.py` — small control helpers for cleaner and delay actions
+- `poolctl/protocol.py` — protocol gaps not covered by screenlogicpy
 - `poolctl/cli.py` — command-line entrypoint
 - `tests/` — unit tests for pure logic/rendering
 
 ## Near-term roadmap
 
-1. Cleaner-focused smart control, especially clearing system delay before enabling the cleaner
-2. Robust circuit lookup by name/id
-3. Safe circuit on/off commands
-4. Better structured JSON output
-5. Config file / adapter selection overrides
-6. Optional Rust port later if the Python shape proves right
+1. Robust circuit lookup by name/id
+2. Dead-simple cleaner and delay commands
+3. Better structured JSON output
+4. Config file / adapter selection overrides
+5. Optional Rust port later if the Python shape proves right
 
 ## Style
 

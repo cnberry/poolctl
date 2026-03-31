@@ -1,6 +1,6 @@
 import pytest
 
-from poolctl.control import delay_active, extract_delay, find_circuit, normalize_name
+from poolctl.control import extract_delay, find_circuit, normalize_name
 from poolctl.protocol import CANCEL_DELAY_QUERY
 
 
@@ -32,12 +32,6 @@ def test_find_circuit_partial(summary):
 def test_find_circuit_missing(summary):
     with pytest.raises(ValueError, match="No circuit matched"):
         find_circuit(summary, "Jets")
-
-
-def test_delay_active():
-    assert delay_active({"cleaner": 1, "pool": 0, "spa": 0}) is True
-    assert delay_active({"cleaner": 0, "pool": 0, "spa": 0}) is False
-    assert delay_active({"cleaner": None, "pool": 0, "spa": 0}) is False
 
 
 def test_extract_delay():
