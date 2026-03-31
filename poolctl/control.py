@@ -115,16 +115,13 @@ async def set_circuit_state(circuit_name: str, enabled: bool) -> dict[str, Any]:
         current = find_circuit(updated, circuit["name"])
         current_delay = extract_delay(current_data)
 
-        if enabled and current["state"] != "on" and current_delay.get("cleaner"):
+        if enabled and current_delay.get("cleaner"):
             await async_request_cancel_delay(gateway._protocol, gateway._max_retries)
             canceled_delay = True
             canceled_settle = await settle_after_cancel_delay(gateway, adapter, circuit["name"])
             last_after_cancel = canceled_settle["last"] or {"current": current, "delay": current_delay}
             current = last_after_cancel["current"]
             current_delay = last_after_cancel["delay"]
-            if current["state"] != "on":
-                await gateway.async_set_circuit(circuit["id"], 1)
-                await gateway.async_update()
 
         settled = await settle_circuit_state(gateway, adapter, circuit["name"])
         final_state = settled["last"] or {

@@ -31,7 +31,7 @@ Early reconnaissance project, now split into a small package + CLI with basic un
 - `poolctl bodies`
 - `poolctl pumps`
 - `poolctl cleaner status`
-- `poolctl cleaner on --yes`  _(tries enable first, then cancels cleaner delay and waits for settle before retrying if needed)_
+- `poolctl cleaner on --yes`  _(tries enable first, then cancels cleaner delay and waits for settle)_
 - `poolctl cleaner off --yes`
 
 JSON output is available with `--json`, and raw status payloads can be dumped with:
