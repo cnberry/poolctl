@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "poolctl"
+version = "0.1.0"
+description = "Terminal-first Pentair ScreenLogic exploration and control"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "screenlogicpy==0.10.2",
+]
+
+[project.scripts]
+poolctl = "poolctl.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
