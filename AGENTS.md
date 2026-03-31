@@ -31,7 +31,7 @@ Think: UNIX tool, not enterprise sludge.
 
 - **Hide vendor friction when we understand it.**
   If the Pentair workflow requires nonsense like canceling delay before enabling the cleaner, `poolctl` should absorb that complexity.
-  For cleaner enable specifically, the preferred sequence is: try enable -> query status -> if cleaner delay is active, cancel delay -> wait for controller settle -> only re-assert cleaner on if it is still off -> confirm.
+  For cleaner enable specifically, the preferred sequence is: try enable -> query status -> if cleaner delay is active, cancel delay -> wait for controller settle -> confirm.
 
 ## Current shape
 
