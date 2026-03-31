@@ -71,6 +71,16 @@ async def async_main() -> None:
             print(
                 f"Requested cleaner {'on' if requested['enabled'] else 'off'}; current state is {current['state']}"
             )
+            print(
+                f"Delay before: cleaner={result['delay_before']['cleaner']} pool={result['delay_before']['pool']} spa={result['delay_before']['spa']}"
+            )
+            print(
+                f"Delay after:  cleaner={result['delay_after']['cleaner']} pool={result['delay_after']['pool']} spa={result['delay_after']['spa']}"
+            )
+            if result['canceled_delay']:
+                print('Canceled active system delay before toggling cleaner.')
+            if not result['confirmed']:
+                print('Warning: requested state did not stick after settle period.')
         return
 
     payload = await fetch_status()
