@@ -49,6 +49,22 @@ Default output is compact and human-readable. Use `--json` for structured output
 Raw status payloads can be dumped with:
 - `poolctl status --raw`
 
+## Install
+
+Preferred install for a real always-available CLI:
+
+```bash
+pipx install --editable .
+```
+
+After edits:
+
+```bash
+pipx reinstall --editable .
+```
+
+That puts `poolctl` on your normal user path without requiring venv activation for daily use.
+
 ## Development
 
 Classic direct shell flow:
@@ -62,10 +78,10 @@ PYTHONPATH=. pytest -q
 python poolctl.py status
 ```
 
-Or, if you have `just` installed:
+Or, if you have `just` and `pipx` installed:
 
 ```bash
-just setup
+just install
 just test
 just status
 just circuits
