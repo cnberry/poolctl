@@ -8,6 +8,12 @@ pytest := venv + "/bin/pytest"
 default:
     just --list
 
+install:
+    pipx install --editable .
+
+reinstall:
+    pipx reinstall --editable .
+
 setup:
     python3 -m venv {{venv}}
     {{pip}} install -e .
