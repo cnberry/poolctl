@@ -102,6 +102,12 @@ The goal is not to build a giant pool platform. The goal is to make the useful 9
 - `AGENTS.md` — project principles and engineering intent
 - `SKILL.md` — lets an agent/chat workflow drive the CLI directly
 
+## Built with
+
+This repo was created with:
+- OpenClaw 2026.3.28 (`f9b1079`)
+- OpenAI GPT 5.4
+
 ## Current shape
 
 This repo is the most mature of the three `*ctl` siblings.
@@ -110,3 +116,11 @@ It already covers the everyday useful stuff and serves as the pattern for the ot
 - compact human-readable output
 - local config outside the repo
 - explicit commands instead of magical orchestration
+
+## Agent-first repo notes
+
+This repo is intended to be agent-friendly as well as human-friendly.
+The standard agent-first files live at the repo root:
+- `README.md` — human-facing overview
+- `AGENTS.md` — project principles and working conventions
+- `SKILL.md` — direct agent usage guidance
