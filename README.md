@@ -1,28 +1,43 @@
 # poolctl 🌊🤖🔱
 
-A terminal-first Pentair ScreenLogic exploration and control tool for taming a mildly cursed pool box over the LAN.
+A terminal-first Pentair ScreenLogic control tool for interrogating and nudging a mildly cursed pool box over the LAN.
 
-## Goals
+`poolctl` is part of the same small-tool family as `lightctl` and `hottubctl`: sharp commands, readable output, no app-shaped nonsense.
 
-- Discover Pentair ScreenLogic adapters on the local network
-- Inspect pool configuration and current state
-- Provide a clean CLI for common control actions
-- Evolve into a reusable library + CLI split
+## What it does
 
-## Status
+- discovers ScreenLogic adapters on the local network
+- shows current pool/spa status in a compact CLI format
+- inspects circuits, bodies, and pumps
+- checks and controls the cleaner
+- checks and cancels system delay state
 
-Early reconnaissance project, now split into a small package + CLI with basic unit tests.
-The interface is intentionally being simplified toward small, explicit commands rather than clever orchestration.
+## Install
 
-## Visual identity
-
-```text
-      .-.
-   .-(   )-.        poolctl
-  (___.__)__)       🌊🤖🔱
-     /___\\
-    /_____\\
+```bash
+git clone git@github.com:your-user/poolctl.git
+cd poolctl
+just install
 ```
+
+That installs `poolctl` with `pipx` so it behaves like a normal command, not a repo you have to babysit.
+
+Useful `just` targets:
+
+```bash
+just status
+just circuits
+just bodies
+just pumps
+just raw
+```
+
+## Local config
+
+`poolctl` stores discovered adapter config here:
+- `~/.config/poolctl/config.json`
+
+That file is local machine state, not repo content.
 
 ## Commands
 
@@ -46,28 +61,11 @@ Debugging / direct host override:
 - `poolctl --host 192.168.1.50 status`
 
 Default output is compact and human-readable. Use `--json` for structured output.
-Raw status payloads can be dumped with:
-- `poolctl status --raw`
-
-## Install
-
-Preferred install for a real always-available CLI:
-
-```bash
-pipx install --editable .
-```
-
-After edits:
-
-```bash
-pipx reinstall --editable .
-```
-
-That puts `poolctl` on your normal user path without requiring venv activation for daily use.
+Use `poolctl status --raw` when you want the raw payload.
 
 ## Development
 
-Classic direct shell flow:
+For early development or protocol poking:
 
 ```bash
 python3 -m venv .venv
@@ -78,30 +76,17 @@ PYTHONPATH=. pytest -q
 python poolctl.py status
 ```
 
-Or, if you have `just` and `pipx` installed:
+Once the CLI is useful, prefer the installed command shape via `just install` / `just reinstall`.
 
-```bash
-just install
-just test
-just status
-just circuits
-```
+## Why this repo exists
 
-The adapter discovered on first successful discovery/connect is cached in:
+The goal is not to build a giant pool platform. The goal is to make the useful 90% easy:
+- inspect the system quickly
+- script common actions
+- avoid phone-app friction
+- keep the interface boring enough to trust
 
-- `~/.config/poolctl/config.json`
+## Notes for future cleanup
 
-Subsequent commands use the configured adapter first, with discovery available as a fallback or explicit command.
-
-## Maintenance rule
-
-When a behavior or interface change feels like a keeper, update the docs immediately:
-- `README.md` for user-facing changes
-- `AGENTS.md` for project principles, workflow, and engineering intent
-
-Clean code. Good code. Updated docs.
-
-## Notes for agents and future-us
-
-See `AGENTS.md` for project principles, current shape, and the near-term roadmap.
-`SKILL.md` lives at the repo root so Botty can use this CLI directly from chat requests.
+See `AGENTS.md` for project principles and engineering intent.
+`SKILL.md` exists so the repo can be driven directly from an agent/chat workflow.

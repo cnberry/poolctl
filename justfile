@@ -12,7 +12,8 @@ install:
     pipx install --editable .
 
 reinstall:
-    pipx reinstall --editable .
+    -pipx uninstall poolctl
+    pipx install --editable .
 
 setup:
     python3 -m venv {{venv}}
@@ -23,19 +24,19 @@ test:
     PYTHONPATH=. {{pytest}} -q
 
 discover:
-    {{python}} poolctl.py discover
+    poolctl discover
 
 status:
-    {{python}} poolctl.py status
+    poolctl status
 
 circuits:
-    {{python}} poolctl.py circuits
+    poolctl circuits
 
 bodies:
-    {{python}} poolctl.py bodies
+    poolctl bodies
 
 pumps:
-    {{python}} poolctl.py pumps
+    poolctl pumps
 
 raw:
-    {{python}} poolctl.py status --raw
+    poolctl status --raw
