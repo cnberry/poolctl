@@ -1,6 +1,6 @@
 ---
 name: poolctl
-description: Control Chris's Pentair ScreenLogic pool setup from the local `poolctl` CLI. Use when asked to turn the pool cleaner on or off, check cleaner or delay status, cancel pool delays, inspect pool status/circuits/bodies/pumps, or otherwise operate the local pool system from this repo.
+description: Control a local Pentair ScreenLogic pool setup from the `poolctl` CLI. Use when asked to turn the pool cleaner on or off, check cleaner or delay status, cancel pool delays, inspect pool status/circuits/bodies/pumps, or otherwise operate the local pool system from this repo.
 ---
 
 # poolctl
@@ -17,10 +17,15 @@ Use the local `poolctl` CLI from this repository.
 
 ## Run from repo root
 
+Preferred daily-use flow:
+
 ```bash
 cd REPO_ROOT/poolctl
-. .venv/bin/activate
+poolctl status
 ```
+
+Cached adapter config lives at:
+- `~/.config/poolctl/config.json`
 
 ## Command map
 
