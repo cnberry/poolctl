@@ -63,6 +63,17 @@ Debugging / direct host override:
 Default output is compact and human-readable. Use `--json` for structured output.
 Use `poolctl status --raw` when you want the raw payload.
 
+Example status output:
+
+```text
+Model: EasyTouch2 4P
+Air: 64°F
+Salt: 2750 ppm
+Bodies:
+- Pool: 66°F, heat_mode=Solar, setpoint=85°F, heat_state=Off
+- Spa: 65°F, heat_mode=Off, setpoint=100°F, heat_state=Off
+```
+
 ## Development
 
 For early development or protocol poking:
@@ -86,7 +97,16 @@ The goal is not to build a giant pool platform. The goal is to make the useful 9
 - avoid phone-app friction
 - keep the interface boring enough to trust
 
-## Notes for future cleanup
+## Extra docs
 
-See `AGENTS.md` for project principles and engineering intent.
-`SKILL.md` exists so the repo can be driven directly from an agent/chat workflow.
+- `AGENTS.md` — project principles and engineering intent
+- `SKILL.md` — lets an agent/chat workflow drive the CLI directly
+
+## Current shape
+
+This repo is the most mature of the three `*ctl` siblings.
+It already covers the everyday useful stuff and serves as the pattern for the others:
+- installable CLI
+- compact human-readable output
+- local config outside the repo
+- explicit commands instead of magical orchestration
