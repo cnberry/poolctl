@@ -23,6 +23,13 @@ setup:
 test:
     PYTHONPATH=. {{pytest}} -q
 
+test-integration:
+    poolctl status --help >/dev/null
+
+test-all:
+    just test
+    just test-integration
+
 discover:
     poolctl discover
 

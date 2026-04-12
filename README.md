@@ -25,6 +25,10 @@ That installs `poolctl` with `pipx` so it behaves like a normal command, not a r
 Useful `just` targets:
 
 ```bash
+just setup
+just test
+just test-integration
+just test-all
 just status
 just circuits
 just bodies
