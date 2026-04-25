@@ -76,10 +76,8 @@ poolctl --host 192.168.1.50 status
 
 When Chris says "turn on my pool cleaner", prefer this sequence:
 1. `poolctl cleaner on --yes`
-2. `poolctl cleaner status`
-3. if cleaner is still off and cleaner delay is active, run `poolctl delay cancel --yes`
-4. `poolctl cleaner status` again
-5. report the final concise result
+2. trust the command's final reported status, because it should now auto-cancel cleaner delay when needed and report post-action cleaner/delay state
+3. if something still looks wrong, run `poolctl cleaner status` explicitly and report the final concise result
 
 ## Response style
 

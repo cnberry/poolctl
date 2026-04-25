@@ -67,11 +67,29 @@ async def async_main() -> None:
             action = "on" if enabled else "off"
             raise SystemExit(f"Refusing to turn cleaner {action} without --yes. Run: poolctl cleaner {action} --yes")
 
+        delay_before = await delay_status(args.host)
+        cancelled_delay = None
+        if enabled and delay_before.get("cleaner", 0):
+            cancelled_delay = await cancel_delay(args.host)
+
         result = await set_circuit_state("Cleaner", enabled, args.host)
+        status_after = await cleaner_status(args.host)
+        payload = {
+            "requested": "on" if enabled else "off",
+            "delay_before": delay_before,
+            "delay_cancelled": cancelled_delay,
+            "result": result,
+            "status_after": status_after,
+        }
         if args.json:
-            print(json.dumps(result, indent=2, sort_keys=True, default=str))
+            print(json.dumps(payload, indent=2, sort_keys=True, default=str))
         else:
-            print(f"Cleaner: {result['state']}")
+            state = status_after["circuit"]["state"]
+            delay = status_after["delay"]
+            if cancelled_delay is not None:
+                print("Delay cancelled before cleaner enable.")
+            print(f"Cleaner: {state}")
+            print(f"Delays: cleaner={delay['cleaner']} pool={delay['pool']} spa={delay['spa']}")
         return
 
     if args.command == "delay":
