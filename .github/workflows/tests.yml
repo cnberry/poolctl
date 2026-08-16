@@ -19,6 +19,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install -e ".[dev]"
+      - run: test -x script/install && sh -n script/install
       - run: ruff format --check poolctl tests
       - run: ruff check poolctl tests
       - run: detect-secrets scan --baseline .secrets.baseline

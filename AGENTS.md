@@ -19,6 +19,8 @@ the installed CLI useful without requiring repository knowledge.
   requiring live hardware.
 - Update `README.md`, `SKILL.md`, and relevant files under `docs/` when command
   behavior changes.
+- Maintain `script/install` as the language-neutral deployment contract. A
+  future Rust migration changes that script, not private bootstrap callers.
 
 ## Layout
 
@@ -28,6 +30,7 @@ the installed CLI useful without requiring repository knowledge.
 - `poolctl/control.py` — guarded cleaner and delay helpers
 - `poolctl/protocol.py` — protocol behavior missing from `screenlogicpy`
 - `poolctl/cli.py` — command-line parser and dispatch
+- `script/install` — stable installer entry point for deployment automation
 - `tests/` — hardware-free unit tests
 - `docs/` — operations, protocol, troubleshooting, and roadmap notes
 

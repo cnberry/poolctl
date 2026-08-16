@@ -15,6 +15,12 @@
 - improve errors for discovery, timeout, and protocol-version failures;
 - document supervised validation across more ScreenLogic controller families.
 
+## Implementation direction
+
+A future Rust port should preserve the CLI, private config paths, redaction,
+JSON contract, and `script/install` entry point. Keep the Python implementation
+until the replacement reaches behavioral and safety parity.
+
 ## Out of scope by default
 
 - arbitrary circuit writes;

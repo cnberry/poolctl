@@ -31,11 +31,13 @@ Python 3.11 or newer is required.
 ```bash
 git clone https://github.com/cnberry/poolctl.git
 cd poolctl
-pipx install --editable .
+./script/install
 ```
 
-If you use [`just`](https://just.systems/), `just install` performs the same
-editable `pipx` install.
+`script/install` is the stable repository contract used by private deployment
+automation. Today it installs the Python package with `pipx`; it can be replaced
+by a Rust or binary installer later without changing callers. `just install`
+uses the same contract.
 
 ## Configure private adapter data
 
@@ -108,9 +110,12 @@ and the [roadmap](docs/roadmap.md) for more detail.
   cleaner, and delay control.
 - [`hottubctl`](https://github.com/cnberry/hottubctl) — Sundance SmartTub
   temperature and freshness inspection.
+- [`switchctl`](https://github.com/cnberry/switchctl) — named local switch
+  status and guarded power control.
 
-All three favor small commands, private local configuration, readable default
-output, JSON for automation, guarded writes, and explicit uncertainty.
+Current and future `*ctl` tools favor small commands, private configuration,
+readable output, safe JSON, guarded writes, post-write readback, a repo-owned
+`script/install`, and explicit uncertainty.
 
 ## Development
 
