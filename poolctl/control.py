@@ -4,7 +4,7 @@ from typing import Any
 
 from screenlogicpy import ScreenLogicGateway
 
-from poolctl.gateway import discover_adapter, fetch_status, resolve_adapter
+from poolctl.gateway import fetch_status, resolve_adapter
 from poolctl.protocol import async_request_cancel_delay
 from poolctl.render import summarize
 
@@ -51,7 +51,9 @@ async def delay_status(host: str | None = None) -> dict[str, int | None]:
     return extract_delay(payload["data"])
 
 
-async def set_circuit_state(circuit_name: str, enabled: bool, host: str | None = None) -> dict[str, Any]:
+async def set_circuit_state(
+    circuit_name: str, enabled: bool, host: str | None = None
+) -> dict[str, Any]:
     payload = await fetch_status(host)
     summary = summarize(payload)
     circuit = find_circuit(summary, circuit_name)

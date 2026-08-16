@@ -37,7 +37,9 @@ async def async_main() -> None:
     delay_status_parser = delay_sub.add_parser("status")
     delay_status_parser.add_argument("--json", action="store_true")
     delay_cancel_parser = delay_sub.add_parser("cancel")
-    delay_cancel_parser.add_argument("--yes", action="store_true", help="actually perform the hardware write")
+    delay_cancel_parser.add_argument(
+        "--yes", action="store_true", help="actually perform the hardware write"
+    )
     delay_cancel_parser.add_argument("--json", action="store_true")
 
     args = parser.parse_args()
@@ -65,7 +67,9 @@ async def async_main() -> None:
         enabled = args.cleaner_command == "on"
         if not args.yes:
             action = "on" if enabled else "off"
-            raise SystemExit(f"Refusing to turn cleaner {action} without --yes. Run: poolctl cleaner {action} --yes")
+            raise SystemExit(
+                f"Refusing to turn cleaner {action} without --yes. Run: poolctl cleaner {action} --yes"
+            )
 
         delay_before = await delay_status(args.host)
         cancelled_delay = None
@@ -98,11 +102,15 @@ async def async_main() -> None:
             if args.json:
                 print(json.dumps(status, indent=2, sort_keys=True, default=str))
             else:
-                print(f"Delays: cleaner={status['cleaner']} pool={status['pool']} spa={status['spa']}")
+                print(
+                    f"Delays: cleaner={status['cleaner']} pool={status['pool']} spa={status['spa']}"
+                )
             return
 
         if not args.yes:
-            raise SystemExit("Refusing to cancel delays without --yes. Run: poolctl delay cancel --yes")
+            raise SystemExit(
+                "Refusing to cancel delays without --yes. Run: poolctl delay cancel --yes"
+            )
 
         result = await cancel_delay(args.host)
         if args.json:

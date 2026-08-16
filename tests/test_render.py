@@ -1,9 +1,17 @@
-from poolctl.render import enum_value, onoff, render_bodies, render_circuits, render_pumps, render_status, summarize
+from poolctl.render import (
+    enum_value,
+    onoff,
+    render_bodies,
+    render_circuits,
+    render_pumps,
+    render_status,
+    summarize,
+)
 
 
 def sample_payload():
     return {
-        "adapter": {"name": "Pentair: EXAMPLE", "ip": "192.168.1.50", "port": 80},
+        "adapter": {"name": "Pentair: EXAMPLE", "ip": "192.0.2.10", "port": 80},
         "data": {
             "controller": {
                 "model": {"value": "EasyTouch2 4P"},
@@ -29,8 +37,20 @@ def sample_payload():
                 },
             },
             "circuit": {
-                "500": {"circuit_id": 500, "name": "Spa", "value": 0, "function": 1, "interface": 1},
-                "505": {"circuit_id": 505, "name": "Pool", "value": 1, "function": 2, "interface": 0},
+                "500": {
+                    "circuit_id": 500,
+                    "name": "Spa",
+                    "value": 0,
+                    "function": 1,
+                    "interface": 1,
+                },
+                "505": {
+                    "circuit_id": 505,
+                    "name": "Pool",
+                    "value": 1,
+                    "function": 2,
+                    "interface": 0,
+                },
             },
             "pump": {
                 "0": {
@@ -73,7 +93,7 @@ def test_renderers():
     bodies = render_bodies(summary)
     pumps = render_pumps(summary)
 
-    assert "Adapter: Pentair: EXAMPLE @ 192.168.1.50:80" in status
+    assert "Adapter: Pentair: EXAMPLE @ 192.0.2.10:80" in status
     assert "500  off  Spa" in circuits
     assert "Pool: 66°F, heat_mode=Solar" in bodies
     assert "pump 0: on rpm=2750 watts=1036 gpm=255" in pumps

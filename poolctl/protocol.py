@@ -4,7 +4,6 @@ import struct
 
 from screenlogicpy.requests.request import async_make_request
 
-
 CANCEL_DELAY_QUERY = 12580
 
 
