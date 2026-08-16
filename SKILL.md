@@ -1,89 +1,40 @@
 ---
 name: poolctl
-description: Control a local Pentair ScreenLogic pool setup from the `poolctl` CLI. Use when asked to turn the pool cleaner on or off, check cleaner or delay status, cancel pool delays, inspect pool status/circuits/bodies/pumps, or otherwise operate the local pool system from this repo.
+description: Inspect and control a local Pentair ScreenLogic pool system with the poolctl CLI. Use for pool status, circuits, bodies, pumps, cleaner state, cleaner control, and delay inspection or cancellation.
 ---
 
 # poolctl
 
-Use the local `poolctl` CLI from this repository.
+Use the installed `poolctl` CLI instead of ad-hoc protocol calls when a command
+already exists.
 
-## Rules
+## Safety rules
 
-- Prefer the `poolctl` CLI over ad-hoc Python or direct protocol poking when the command already exists.
-- Use the configured adapter by default.
-- Keep responses short and action-oriented.
-- For mutating commands, report the final compact CLI output, not internal debug details.
-- If a requested behavior is not implemented in `poolctl`, say so plainly and then improve the CLI if appropriate.
+- Read state before a write when the request or current state is ambiguous.
+- Treat adapter IPs, names, and raw payloads as private deployment data.
+- Use `--yes` only after the requested equipment and action are clear.
+- Report final state from the command, not merely that a write was submitted.
+- Never invent support for an arbitrary circuit; the public write surface is
+  intentionally limited to cleaner and delay commands.
 
-## Run from repo root
-
-Preferred daily-use flow:
-
-```bash
-cd REPO_ROOT/poolctl
-poolctl status
-```
-
-Cached adapter config lives at:
-- `~/.config/poolctl/config.json`
-
-## Command map
-
-### Cleaner
+## Commands
 
 ```bash
-poolctl cleaner status
-poolctl cleaner on --yes
-poolctl cleaner off --yes
-```
-
-Use for requests like:
-- "turn on my pool cleaner"
-- "turn off the cleaner"
-- "is the pool cleaner on?"
-
-### Delays
-
-```bash
-poolctl delay status
-poolctl delay cancel --yes
-```
-
-Use for requests like:
-- "cancel pool delays"
-- "clear system delay"
-- "is there a cleaner delay?"
-
-### General inspection
-
-```bash
+poolctl discover
 poolctl status
 poolctl circuits
 poolctl bodies
 poolctl pumps
-poolctl discover
+poolctl cleaner status
+poolctl cleaner on --yes
+poolctl cleaner off --yes
+poolctl delay status
+poolctl delay cancel --yes
 ```
 
-### Direct host override
+Use `--json` for structured results. Put a one-off direct host before the
+subcommand, for example `poolctl --host 192.0.2.10 status`.
 
-Only use when debugging or explicitly requested:
-
-```bash
-poolctl --host 192.168.1.50 status
-```
-
-## Chat-level workflow
-
-When Chris says "turn on my pool cleaner", prefer this sequence:
-1. `poolctl cleaner on --yes`
-2. trust the command's final reported status, because it should now auto-cancel cleaner delay when needed and report post-action cleaner/delay state
-3. if something still looks wrong, run `poolctl cleaner status` explicitly and report the final concise result
-
-## Response style
-
-Examples:
-- "Done. Cleaner: on"
-- "Done. Delays: cleaner=0 pool=0 spa=0"
-- "Cleaner: off"
-
-If a command fails, quote the relevant error briefly and say what you’ll do next.
+Cleaner enable already checks and cancels cleaner delay when necessary, then
+reports the post-action cleaner and delay state. If a command fails, quote the
+short error and do not claim the hardware reached the requested state.

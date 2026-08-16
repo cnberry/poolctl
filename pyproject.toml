@@ -4,16 +4,44 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "poolctl"
-version = "0.1.0"
-description = "Terminal-first Pentair ScreenLogic exploration and control"
+version = "0.2.0"
+description = "Terminal-first Pentair ScreenLogic inspection and guarded control"
 readme = "README.md"
 requires-python = ">=3.11"
+license = "MIT"
+authors = [{name = "Chris Berry"}]
+keywords = ["pentair", "screenlogic", "pool", "home-automation", "cli"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Home Automation",
+]
 dependencies = [
   "screenlogicpy==0.10.2",
 ]
 
+[project.optional-dependencies]
+dev = ["detect-secrets>=1.5,<2", "pytest>=8,<9", "ruff>=0.9,<1"]
+
+[project.urls]
+Homepage = "https://github.com/cnberry/poolctl"
+Issues = "https://github.com/cnberry/poolctl/issues"
+
 [project.scripts]
 poolctl = "poolctl.cli:main"
 
+[tool.setuptools]
+packages = ["poolctl"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]

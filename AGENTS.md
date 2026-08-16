@@ -1,72 +1,41 @@
-# AGENTS.md
+# Repository guidance
 
-## What this repo is
+## Purpose
 
-`poolctl` is a terminal-first Pentair ScreenLogic exploration and control project.
+`poolctl` is a terminal-first Pentair ScreenLogic inspection and control tool.
+Keep the reusable protocol/control layer separate from presentation, and keep
+the installed CLI useful without requiring repository knowledge.
 
-The goal is not to build a bloated smart-home platform on day one. The goal is to build:
-- a clean library layer
-- a sharp CLI
-- small, understandable commands
-- enough protocol understanding to control real hardware safely
+## Engineering principles
 
-Think: UNIX tool, not enterprise sludge.
+- Read state before adding or performing a write.
+- Keep commands small, explicit, and scriptable.
+- Treat live pool hardware as safety-sensitive.
+- Require a deliberate guard for every mutating command.
+- Report post-write state instead of equating request acceptance with success.
+- Keep real adapter names, IPs, and site topology outside the public repository.
+- Preserve compact human output and stable JSON output.
+- Test pure selection, rendering, configuration, and protocol logic without
+  requiring live hardware.
+- Update `README.md`, `SKILL.md`, and relevant files under `docs/` when command
+  behavior changes.
+- Maintain `script/install` as the language-neutral deployment contract. A
+  future Rust migration changes that script, not private bootstrap callers.
 
-## Project principles
+## Layout
 
-- **Library first, CLI immediately useful.**
-  The protocol/control logic should be reusable, while the CLI stays pleasant for direct human use.
-
-- **Read before write.**
-  Prefer adding discovery, inventory, and state inspection before mutating commands.
-
-- **Small commands, low surprise.**
-  Commands should do one thing well and print useful output.
-
-- **Test the rendering and logic layers.**
-  Unit tests should cover summary/formatting/helpers even when live hardware tests are limited.
-
-- **Treat live pool hardware with respect.**
-  Avoid risky or surprising writes. Add guardrails around mutating commands.
-
-- **Hide vendor friction only when explicitly desired.**
-  Prefer small sharp commands over over-smart orchestration. Keep cleaner control and delay cancellation as separate explicit commands unless the user wants otherwise.
-
-- **Update docs when the shape settles.**
-  When a change feels right, update `README.md` and `AGENTS.md` in the same stretch of work. Clean code and current docs go together.
-
-- **Prefer pipx for installed CLI usage.**
-  For daily use, these tools should behave like normal commands on the user path. Reserve local venv activation for development and testing.
-
-## Current shape
-
-- `poolctl/gateway.py` — adapter discovery, cached adapter resolution, and live status fetch
-- `poolctl/config.py` — tiny config/cache for adapter connection details
+- `poolctl/gateway.py` — discovery, cached adapter resolution, and status fetch
+- `poolctl/config.py` — private local adapter configuration
 - `poolctl/render.py` — summary shaping and human-readable output
-- `poolctl/control.py` — small explicit control helpers for cleaner and delay actions
-- `poolctl/protocol.py` — protocol gaps not covered by screenlogicpy
-- `poolctl/cli.py` — command-line entrypoint
-- `tests/` — unit tests for pure logic/rendering/config helpers
+- `poolctl/control.py` — guarded cleaner and delay helpers
+- `poolctl/protocol.py` — protocol behavior missing from `screenlogicpy`
+- `poolctl/cli.py` — command-line parser and dispatch
+- `script/install` — stable installer entry point for deployment automation
+- `tests/` — hardware-free unit tests
+- `docs/` — operations, protocol, troubleshooting, and roadmap notes
 
-`SKILL.md` lives at the repo root so Botty can use this CLI directly when Chris asks for pool actions in chat.
+## Development
 
-## Near-term roadmap
-
-1. Keep the cleaner/delay interface sharp and boring
-2. Robust circuit lookup by name/id
-3. Better structured JSON output
-4. Add explicit config commands if useful (`config show`, maybe `config set-host`)
-5. Optional Rust port later if the Python shape proves right
-
-## Style
-
-- Keep code boring and readable.
-- Avoid needless framework energy.
-- Prefer explicit names over magic.
-- Don’t let the repo turn into app-store cosplay.
-
-## Vibe
-
-This project is a small terminal trident for poking a cursed pool box over the LAN.
-
-🌊🤖🔱
+Prefer `pipx` for daily installed use and `.venv` for development. Run the full
+format, lint, secret-scan, and test sequence documented in `README.md` before
+publishing. Never make a live hardware write as part of an automated test.

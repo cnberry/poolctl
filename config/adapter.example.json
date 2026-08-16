@@ -1,0 +1,9 @@
+{
+  "adapter": {
+    "gsubtype": 0,
+    "gtype": 0,
+    "ip": "192.0.2.10",
+    "name": "Pentair: EXAMPLE",
+    "port": 80
+  }
+}

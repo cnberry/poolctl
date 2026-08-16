@@ -9,18 +9,19 @@ default:
     just --list
 
 install:
-    pipx install --editable .
+    ./script/install
 
 reinstall:
-    -pipx uninstall poolctl
-    pipx install --editable .
+    ./script/install
 
 setup:
     python3 -m venv {{venv}}
-    {{pip}} install -e .
-    {{pip}} install pytest
+    {{pip}} install -e ".[dev]"
 
 test:
+    {{venv}}/bin/ruff format --check poolctl tests
+    {{venv}}/bin/ruff check poolctl tests
+    {{venv}}/bin/detect-secrets scan --baseline .secrets.baseline
     PYTHONPATH=. {{pytest}} -q
 
 test-integration:
