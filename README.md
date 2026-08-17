@@ -29,15 +29,14 @@ Python 3.11 or newer is required.
 ## Install
 
 ```bash
-git clone https://github.com/cnberry/poolctl.git
-cd poolctl
-./script/install
+cd /path/to/private/home-ops
+./bin/bootstrap-ctls poolctl
 ```
 
-`script/install` is the stable repository contract used by private deployment
-automation. Today it installs the Python package with `pipx`; it can be replaced
-by a Rust or binary installer later without changing callers. `just install`
-uses the same contract.
+The private `home-ops` bootstrap is the canonical installer: it populates the
+real adapter inventory, calls this repository's stable `script/install`
+contract, and creates `/usr/local/bin/poolctl` backed by an isolated system
+environment under `/usr/local/lib/home-ops/ctls`.
 
 ## Configure private adapter data
 
@@ -47,7 +46,7 @@ Run discovery once on the same LAN as the ScreenLogic adapter:
 poolctl discover
 ```
 
-The selected adapter is saved to `~/.config/poolctl/config.json` with mode
+The selected adapter is saved to `/usr/local/config/poolctl/config.json` with mode
 `0600`. Set `POOLCTL_CONFIG=/path/to/config.json` to use another private file,
 or pass `--host 192.0.2.10` before a command for a one-off host override.
 
@@ -87,7 +86,7 @@ full behavior and safety boundary.
 
 | Data | Default path | Git policy |
 | --- | --- | --- |
-| Adapter cache | `~/.config/poolctl/config.json` | Private config repo only |
+| Adapter cache | `/usr/local/config/poolctl/config.json` | Private config repo only |
 | Raw status output | Standard output only | Review before sharing |
 
 `poolctl` does not require a cloud username, password, or token.

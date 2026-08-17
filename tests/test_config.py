@@ -1,6 +1,10 @@
 import stat
 
-from poolctl.config import get_adapter_config, load_config, set_adapter_config
+from poolctl.config import CONFIG_PATH, get_adapter_config, load_config, set_adapter_config
+
+
+def test_system_config_path_is_the_default():
+    assert CONFIG_PATH.as_posix() == "/usr/local/config/poolctl/config.json"
 
 
 def test_load_config_missing(monkeypatch, tmp_path):

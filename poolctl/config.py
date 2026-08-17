@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 ENV_CONFIG_PATH = "POOLCTL_CONFIG"
-CONFIG_DIR = Path.home() / ".config" / "poolctl"
+CONFIG_DIR = Path("/usr/local/config/poolctl")
 CONFIG_PATH = CONFIG_DIR / "config.json"
 
 
