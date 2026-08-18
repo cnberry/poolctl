@@ -29,14 +29,14 @@ Python 3.11 or newer is required.
 ## Install
 
 ```bash
-cd /path/to/private/home-ops
+cd /path/to/private/home-config
 ./bin/bootstrap-ctls poolctl
 ```
 
-The private `home-ops` bootstrap is the canonical installer: it populates the
+The private `home-config` bootstrap is the canonical installer: it populates the
 real adapter inventory, calls this repository's stable `script/install`
 contract, and creates `/usr/local/bin/poolctl` backed by an isolated system
-environment under `/usr/local/lib/home-ops/ctls`.
+environment under `/usr/local/lib/home-config/ctls`.
 
 ## Configure private adapter data
 
