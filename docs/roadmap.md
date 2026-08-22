@@ -7,6 +7,7 @@
 - JSON and raw diagnostic output
 - guarded cleaner on/off with delay handling and post-write readback
 - guarded delay cancellation
+- guarded pool/spa heat mode and setpoint control with post-write readback
 
 ## Next
 
