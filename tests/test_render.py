@@ -22,18 +22,24 @@ def sample_payload():
             },
             "body": {
                 "0": {
+                    "body_type": 0,
                     "name": "Pool",
                     "last_temperature": {"value": 66},
                     "heat_mode": {"value": 1, "enum_options": ["Off", "Solar"]},
                     "heat_setpoint": {"value": 85},
                     "heat_state": {"value": 0, "enum_options": ["Off", "Heater"]},
+                    "min_setpoint": 40,
+                    "max_setpoint": 104,
                 },
                 "1": {
+                    "body_type": 1,
                     "name": "Spa",
                     "last_temperature": {"value": 65},
                     "heat_mode": {"value": 0, "enum_options": ["Off", "Solar"]},
                     "heat_setpoint": {"value": 100},
                     "heat_state": {"value": 0, "enum_options": ["Off", "Heater"]},
+                    "min_setpoint": 40,
+                    "max_setpoint": 104,
                 },
             },
             "circuit": {
@@ -82,6 +88,9 @@ def test_summarize():
     assert summary["air_temp_f"] == 64
     assert summary["salt_ppm"] == 2750
     assert summary["bodies"]["0"]["heat_mode"] == "Solar"
+    assert summary["bodies"]["0"]["id"] == 0
+    assert summary["bodies"]["0"]["min_setpoint_f"] == 40
+    assert summary["bodies"]["0"]["max_setpoint_f"] == 104
     assert summary["circuits"][1]["name"] == "Pool"
     assert summary["pumps"]["0"]["rpm"] == 2750
 

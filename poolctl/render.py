@@ -27,12 +27,20 @@ def summarize(payload: dict[str, Any]) -> dict[str, Any]:
 
     body_summary = {}
     for body_id, body in bodies.items():
+        resolved_id = body.get("body_type", body_id)
+        try:
+            resolved_id = int(resolved_id)
+        except (TypeError, ValueError):
+            pass
         body_summary[body_id] = {
+            "id": resolved_id,
             "name": body.get("name"),
             "temp_f": body.get("last_temperature", {}).get("value"),
             "heat_mode": enum_value(body.get("heat_mode")),
             "heat_setpoint_f": body.get("heat_setpoint", {}).get("value"),
             "heat_state": enum_value(body.get("heat_state")),
+            "min_setpoint_f": body.get("min_setpoint"),
+            "max_setpoint_f": body.get("max_setpoint"),
         }
 
     circuit_summary = []

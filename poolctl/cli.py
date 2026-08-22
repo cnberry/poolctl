@@ -4,7 +4,16 @@ import argparse
 import asyncio
 import json
 
-from poolctl.control import cancel_delay, cleaner_status, delay_status, set_circuit_state
+from poolctl.control import (
+    HEAT_MODES,
+    cancel_delay,
+    cleaner_status,
+    delay_status,
+    heat_status,
+    set_circuit_state,
+    set_heat_mode,
+    set_heat_temp,
+)
 from poolctl.gateway import discover_adapter, fetch_status
 from poolctl.render import render_bodies, render_circuits, render_pumps, render_status, summarize
 
@@ -41,6 +50,26 @@ async def async_main() -> None:
         "--yes", action="store_true", help="actually perform the hardware write"
     )
     delay_cancel_parser.add_argument("--json", action="store_true")
+
+    heat_parser = subparsers.add_parser("heat")
+    heat_sub = heat_parser.add_subparsers(dest="heat_command", required=True)
+    heat_status_parser = heat_sub.add_parser("status")
+    heat_status_parser.add_argument("body", nargs="?", help="body name or numeric ID")
+    heat_status_parser.add_argument("--json", action="store_true")
+    heat_set_parser = heat_sub.add_parser("set")
+    heat_set_parser.add_argument("body", help="body name or numeric ID")
+    heat_set_parser.add_argument("mode", choices=tuple(HEAT_MODES))
+    heat_set_parser.add_argument(
+        "--yes", action="store_true", help="actually perform the hardware write"
+    )
+    heat_set_parser.add_argument("--json", action="store_true")
+    heat_temp_parser = heat_sub.add_parser("temp")
+    heat_temp_parser.add_argument("body", help="body name or numeric ID")
+    heat_temp_parser.add_argument("temperature", type=int)
+    heat_temp_parser.add_argument(
+        "--yes", action="store_true", help="actually perform the hardware write"
+    )
+    heat_temp_parser.add_argument("--json", action="store_true")
 
     args = parser.parse_args()
 
@@ -117,6 +146,41 @@ async def async_main() -> None:
             print(json.dumps(result, indent=2, sort_keys=True, default=str))
         else:
             print(f"Delays: cleaner={result['cleaner']} pool={result['pool']} spa={result['spa']}")
+        return
+
+    if args.command == "heat":
+        if args.heat_command == "status":
+            status = await heat_status(args.body, args.host)
+            if args.json:
+                print(json.dumps(status, indent=2, sort_keys=True, default=str))
+            elif args.body:
+                print(
+                    f"{status['name']}: {status['temp_f']}°F, heat_mode={status['heat_mode']}, "
+                    f"setpoint={status['heat_setpoint_f']}°F, heat_state={status['heat_state']}"
+                )
+            else:
+                print(render_bodies({"bodies": status}))
+            return
+
+        if not args.yes:
+            if args.heat_command == "set":
+                example = f"poolctl heat set {args.body} {args.mode} --yes"
+            else:
+                example = f"poolctl heat temp {args.body} {args.temperature} --yes"
+            raise SystemExit(f"Refusing to change heat settings without --yes. Run: {example}")
+
+        if args.heat_command == "set":
+            result = await set_heat_mode(args.body, args.mode, args.host)
+        else:
+            result = await set_heat_temp(args.body, args.temperature, args.host)
+        if args.json:
+            print(json.dumps(result, indent=2, sort_keys=True, default=str))
+        else:
+            status = result["status_after"]
+            print(
+                f"{status['name']}: {status['temp_f']}°F, heat_mode={status['heat_mode']}, "
+                f"setpoint={status['heat_setpoint_f']}°F, heat_state={status['heat_state']}"
+            )
         return
 
     payload = await fetch_status(args.host)

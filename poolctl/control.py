@@ -8,6 +8,13 @@ from poolctl.gateway import fetch_status, resolve_adapter
 from poolctl.protocol import async_request_cancel_delay
 from poolctl.render import summarize
 
+HEAT_MODES = {
+    "off": 0,
+    "solar": 1,
+    "solar-preferred": 2,
+    "heater": 3,
+}
+
 
 def normalize_name(value: str) -> str:
     return " ".join(value.strip().lower().split())
@@ -25,6 +32,21 @@ def find_circuit(summary: dict[str, Any], query: str) -> dict[str, Any]:
         raise ValueError(f"No circuit matched {query!r}")
     names = ", ".join(c["name"] for c in partial)
     raise ValueError(f"Ambiguous circuit name {query!r}: {names}")
+
+
+def find_body(summary: dict[str, Any], query: str) -> dict[str, Any]:
+    q = normalize_name(query)
+    matches = [
+        body
+        for body in summary["bodies"].values()
+        if q in {normalize_name(str(body.get("name", ""))), str(body.get("id"))}
+    ]
+    if len(matches) == 1:
+        return matches[0]
+    if not matches:
+        raise ValueError(f"No body matched {query!r}")
+    names = ", ".join(str(body.get("name") or body.get("id")) for body in matches)
+    raise ValueError(f"Ambiguous body {query!r}: {names}")
 
 
 def extract_delay(data: dict[str, Any]) -> dict[str, int | None]:
@@ -49,6 +71,64 @@ async def cleaner_status(host: str | None = None) -> dict[str, Any]:
 async def delay_status(host: str | None = None) -> dict[str, int | None]:
     payload = await fetch_status(host)
     return extract_delay(payload["data"])
+
+
+async def heat_status(body_name: str | None = None, host: str | None = None) -> dict[str, Any]:
+    summary = summarize(await fetch_status(host))
+    if body_name is None:
+        return summary["bodies"]
+    return find_body(summary, body_name)
+
+
+async def set_heat_mode(body_name: str, mode: str, host: str | None = None) -> dict[str, Any]:
+    if mode not in HEAT_MODES:
+        choices = ", ".join(HEAT_MODES)
+        raise ValueError(f"Invalid heat mode {mode!r}; choose from: {choices}")
+
+    adapter = await resolve_adapter(host)
+    gateway = ScreenLogicGateway()
+    await gateway.async_connect(**adapter)
+    try:
+        await gateway.async_update()
+        before = find_body(summarize({"adapter": adapter, "data": gateway.get_data()}), body_name)
+        await gateway.async_set_heat_mode(int(before["id"]), HEAT_MODES[mode])
+        await gateway.async_update()
+        after = find_body(summarize({"adapter": adapter, "data": gateway.get_data()}), body_name)
+        return {
+            "requested": {"body": body_name, "mode": mode},
+            "status_before": before,
+            "status_after": after,
+        }
+    finally:
+        await gateway.async_disconnect()
+
+
+async def set_heat_temp(
+    body_name: str, temperature: int, host: str | None = None
+) -> dict[str, Any]:
+    adapter = await resolve_adapter(host)
+    gateway = ScreenLogicGateway()
+    await gateway.async_connect(**adapter)
+    try:
+        await gateway.async_update()
+        before = find_body(summarize({"adapter": adapter, "data": gateway.get_data()}), body_name)
+        minimum = before.get("min_setpoint_f")
+        maximum = before.get("max_setpoint_f")
+        if isinstance(minimum, (int, float)) and isinstance(maximum, (int, float)):
+            if not minimum <= temperature <= maximum:
+                raise ValueError(
+                    f"Temperature for {before['name']} must be between {minimum} and {maximum}°F"
+                )
+        await gateway.async_set_heat_temp(int(before["id"]), temperature)
+        await gateway.async_update()
+        after = find_body(summarize({"adapter": adapter, "data": gateway.get_data()}), body_name)
+        return {
+            "requested": {"body": body_name, "temperature_f": temperature},
+            "status_before": before,
+            "status_after": after,
+        }
+    finally:
+        await gateway.async_disconnect()
 
 
 async def set_circuit_state(

@@ -28,8 +28,20 @@ refreshes controller state, and reports cleaner, pool, and spa delay values.
 Canceling a delay can cause scheduled equipment to resume; inspect the system
 and physical area first.
 
+## Pool and spa heat
+
+Use `poolctl heat status` before a heat write. Mode changes accept only `off`,
+`solar`, `solar-preferred`, or `heater`; temperature changes must fall within
+the selected body's controller-reported minimum and maximum. Exact body names
+and numeric IDs are accepted, and every write requires `--yes`.
+
+Both heat write commands refresh the controller and return `status_before` and
+`status_after`. Treat the returned state as authoritative; request acceptance
+alone is not success.
+
 ## Live validation
 
 Automated tests never contact pool hardware. Before a release that changes write
-behavior, validate status, cleaner off/on/off, and delay reporting on supervised
-equipment, recording only sanitized results.
+behavior, validate status and guarded write/readback behavior on supervised
+equipment, recording only sanitized results. Do not change live heat settings
+solely for an automated deployment check.

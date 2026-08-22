@@ -20,6 +20,7 @@ guarded cleaner and delay controls.
 - discovers a ScreenLogic adapter on the local subnet;
 - reads controller, body, circuit, pump, and sensor state;
 - reports cleaner and system-delay state;
+- reads and controls pool/spa heat mode and setpoint;
 - turns the cleaner on or off after an explicit `--yes` guard;
 - cancels active delays after an explicit `--yes` guard;
 - cancels a cleaner delay before enabling the cleaner, then reports final state.
@@ -63,6 +64,7 @@ poolctl bodies
 poolctl pumps
 poolctl cleaner status
 poolctl delay status
+poolctl heat status
 ```
 
 Add `--json` after a command for structured output. `poolctl status --raw`
@@ -82,6 +84,20 @@ cancels an active cleaner delay, performs the circuit write, and reads status
 again before reporting success. See [operations](docs/operations.md) for the
 full behavior and safety boundary.
 
+## Control pool and spa heat
+
+```bash
+poolctl heat status
+poolctl heat status pool --json
+poolctl heat set pool solar-preferred --yes
+poolctl heat temp pool 88 --yes
+```
+
+Heat modes are `off`, `solar`, `solar-preferred`, and `heater`. Body selection
+requires an exact case-insensitive name or numeric ID. Mutating commands read
+the body first, enforce the controller-reported temperature limits, require
+`--yes`, and return post-write state. See [operations](docs/operations.md).
+
 ## Runtime data
 
 | Data | Default path | Git policy |
@@ -94,8 +110,8 @@ full behavior and safety boundary.
 ## Reliability and scope
 
 ScreenLogic discovery is LAN-bound, and equipment names and supported sensors
-vary by controller configuration. `poolctl` deliberately exposes only the
-cleaner circuit and delay cancellation as writes; it is not a general arbitrary
+vary by controller configuration. `poolctl` deliberately exposes only cleaner,
+delay, and body heat settings as writes; it is not a general arbitrary
 circuit-toggle interface.
 
 See [protocol notes](docs/protocol.md), [troubleshooting](docs/troubleshooting.md),

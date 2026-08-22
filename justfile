@@ -26,6 +26,7 @@ test:
 
 test-integration:
     poolctl status --help >/dev/null
+    poolctl heat status --help >/dev/null
 
 test-all:
     just test
