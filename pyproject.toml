@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "poolctl"
 version = "0.3.0"
-description = "Terminal-first Pentair ScreenLogic inspection and guarded control"
+description = "Tiny Pentair ScreenLogic CLI for guarded pool control"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

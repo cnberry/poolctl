@@ -1,13 +1,20 @@
 <p align="center">
-  <img src="docs/assets/poolctl-hero.jpg" alt="Illustration of a terminal monitoring pool equipment and a cleaner" width="100%">
+  <img src="docs/assets/poolctl-hero.png" alt="A tiny coral robot starts a pool cleaner" width="100%">
 </p>
 
 # poolctl
 
+> **Big pool energy. One tiny command.**
+>
+> Check the water. Confirm the command. Let the little guy swim.
+
 `poolctl` is a small Python CLI for inspecting and operating a Pentair
 ScreenLogic pool system over the local network. It discovers and remembers the
 adapter, renders compact equipment state, exposes structured JSON, and provides
-guarded cleaner and delay controls.
+guarded cleaner, heat, and delay controls.
+
+That's it on purpose: useful reads, deliberate writes, and no sprawling
+smart-home command center between you and the pool.
 
 > [!WARNING]
 > `poolctl` controls pumps and pool equipment through a local, unofficial
