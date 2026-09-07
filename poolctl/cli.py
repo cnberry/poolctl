@@ -10,9 +10,11 @@ from poolctl.control import (
     cleaner_status,
     delay_status,
     heat_status,
+    pump_status,
     set_circuit_state,
     set_heat_mode,
     set_heat_temp,
+    set_pool_pump,
 )
 from poolctl.gateway import discover_adapter, fetch_status
 from poolctl.render import render_bodies, render_circuits, render_pumps, render_status, summarize
@@ -31,6 +33,16 @@ async def async_main() -> None:
         sub.add_argument("--json", action="store_true")
         if command == "status":
             sub.add_argument("--raw", action="store_true")
+
+    pump_parser = subparsers.add_parser("pump", help="Pool circulation and pump telemetry")
+    pump_sub = pump_parser.add_subparsers(dest="pump_command", required=True)
+    for name in ("status", "on", "off"):
+        cmd = pump_sub.add_parser(name)
+        cmd.add_argument("--json", action="store_true")
+        if name != "status":
+            cmd.add_argument(
+                "--yes", action="store_true", help="actually perform the hardware write"
+            )
 
     cleaner_parser = subparsers.add_parser("cleaner")
     cleaner_sub = cleaner_parser.add_subparsers(dest="cleaner_command", required=True)
@@ -79,6 +91,21 @@ async def async_main() -> None:
             print(json.dumps(adapter, indent=2, sort_keys=True))
         else:
             print(f"{adapter['name']} @ {adapter['ip']}:{adapter['port']}")
+        return
+
+    if args.command == "pump":
+        if args.pump_command == "status":
+            result = await pump_status(args.host)
+        else:
+            if not args.yes:
+                raise SystemExit("Refusing to change Pool circulation without --yes")
+            result = await set_pool_pump(args.pump_command == "on", args.host)
+        if args.json:
+            print(json.dumps(result, indent=2, sort_keys=True, default=str))
+        else:
+            print(f"Pool circulation: {result['circuit']['state']}")
+            print(render_pumps(result))
+            print(f"Delays: {result['delay']}")
         return
 
     if args.command == "cleaner":

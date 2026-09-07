@@ -161,3 +161,48 @@ async def cancel_delay(host: str | None = None) -> dict[str, int | None]:
         return extract_delay(gateway.get_data())
     finally:
         await gateway.async_disconnect()
+
+
+def find_pool_circuit(summary: dict[str, Any]) -> dict[str, Any]:
+    matches = [c for c in summary["circuits"] if normalize_name(c["name"]) == "pool"]
+    if len(matches) != 1:
+        raise ValueError("Expected exactly one circuit named Pool")
+    return matches[0]
+
+
+async def pump_status(host: str | None = None) -> dict[str, Any]:
+    payload = await fetch_status(host)
+    summary = summarize(payload)
+    return {
+        "circuit": find_pool_circuit(summary),
+        "pumps": summary["pumps"],
+        "delay": extract_delay(payload["data"]),
+    }
+
+
+async def set_pool_pump(enabled: bool, host: str | None = None) -> dict[str, Any]:
+    """Control Pool circulation; controller interlocks and delays remain in force."""
+    adapter = await resolve_adapter(host)
+    gateway = ScreenLogicGateway()
+    await gateway.async_connect(**adapter)
+    try:
+        await gateway.async_update()
+        before = find_pool_circuit(summarize({"adapter": adapter, "data": gateway.get_data()}))
+        await gateway.async_set_circuit(before["id"], 1 if enabled else 0)
+        await gateway.async_update()
+        data = gateway.get_data()
+        summary = summarize({"adapter": adapter, "data": data})
+        after = find_pool_circuit(summary)
+        expected = "on" if enabled else "off"
+        if after["id"] != before["id"] or after["state"] != expected:
+            raise ValueError(
+                "Pool circulation state was not confirmed; read status before retrying"
+            )
+        return {
+            "requested": expected,
+            "circuit": after,
+            "pumps": summary["pumps"],
+            "delay": extract_delay(data),
+        }
+    finally:
+        await gateway.async_disconnect()

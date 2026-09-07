@@ -174,3 +174,51 @@ def test_set_heat_temp_validates_limits_and_reports_state(monkeypatch):
     with pytest.raises(ValueError, match="between 40 and 104"):
         asyncio.run(control.set_heat_temp("pool", 105))
     assert FakeHeatGateway.instances[1].temp_writes == []
+
+
+def test_pool_selection_never_falls_back_to_pool_light(summary):
+    with pytest.raises(ValueError, match="exactly one"):
+        control.find_pool_circuit(summary)
+    summary["circuits"].append({"id": 504, "name": "Pool", "state": "off"})
+    assert control.find_pool_circuit(summary)["id"] == 504
+    summary["circuits"].append({"id": 505, "name": " pool ", "state": "off"})
+    with pytest.raises(ValueError, match="exactly one"):
+        control.find_pool_circuit(summary)
+
+
+@pytest.mark.parametrize("acknowledged", [True, False])
+def test_pool_write_verifies_state_and_disconnects(monkeypatch, acknowledged):
+    class Gateway(FakeHeatGateway):
+        def __init__(self):
+            super().__init__()
+            self.data["circuit"] = {505: {"circuit_id": 505, "name": "Pool", "value": 0}}
+            self.writes = []
+            self.disconnected = False
+
+        async def async_set_circuit(self, circuit, value):
+            self.writes.append((circuit, value))
+            if acknowledged:
+                self.data["circuit"][circuit]["value"] = value
+
+        async def async_disconnect(self):
+            self.disconnected = True
+
+    install_fake_heat_gateway(monkeypatch)
+    monkeypatch.setattr(control, "ScreenLogicGateway", Gateway)
+    if acknowledged:
+        result = asyncio.run(control.set_pool_pump(True))
+        assert result["circuit"]["state"] == "on"
+    else:
+        with pytest.raises(ValueError, match="not confirmed"):
+            asyncio.run(control.set_pool_pump(True))
+    gateway = FakeHeatGateway.instances[0]
+    assert gateway.writes == [(505, 1)]
+    assert gateway.disconnected
+
+
+def test_pump_cli_requires_guard_before_network(monkeypatch):
+    from poolctl import cli
+
+    monkeypatch.setattr("sys.argv", ["poolctl", "pump", "on"])
+    with pytest.raises(SystemExit, match="without --yes"):
+        asyncio.run(cli.async_main())

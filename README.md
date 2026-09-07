@@ -157,3 +157,12 @@ checks the installed command surface; live hardware validation remains manual.
 ## License
 
 `poolctl` is released under the [MIT License](LICENSE).
+
+### Pool circulation
+
+`poolctl pump status --json` reports the exact Pool circuit, pump telemetry, and
+active delays. `poolctl pump on --yes --json` and `poolctl pump off --yes --json`
+control that circuit and verify its state afterward. Missing or duplicate Pool
+circuits refuse writes. Circuit activation is distinct from measured pump speed;
+controller delays and interlocks remain active. `poolctl delay cancel --yes`
+clears current delays, rather than permanently disabling them.
