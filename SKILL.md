@@ -45,3 +45,12 @@ short error and do not claim the hardware reached the requested state.
 Heat writes require an exact body name or ID and `--yes`. Read the current heat
 status first when the requested mode or setpoint is ambiguous, and report the
 returned `status_after` rather than assuming the request succeeded.
+
+### Pool circulation
+
+`poolctl pump status --json` reports the exact Pool circuit, pump telemetry, and
+active delays. `poolctl pump on --yes --json` and `poolctl pump off --yes --json`
+control that circuit and verify its state afterward. Missing or duplicate Pool
+circuits refuse writes. Circuit activation is distinct from measured pump speed;
+controller delays and interlocks remain active. `poolctl delay cancel --yes`
+clears current delays, rather than permanently disabling them.

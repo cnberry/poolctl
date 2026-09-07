@@ -45,3 +45,12 @@ Automated tests never contact pool hardware. Before a release that changes write
 behavior, validate status and guarded write/readback behavior on supervised
 equipment, recording only sanitized results. Do not change live heat settings
 solely for an automated deployment check.
+
+### Pool circulation
+
+`poolctl pump status --json` reports the exact Pool circuit, pump telemetry, and
+active delays. `poolctl pump on --yes --json` and `poolctl pump off --yes --json`
+control that circuit and verify its state afterward. Missing or duplicate Pool
+circuits refuse writes. Circuit activation is distinct from measured pump speed;
+controller delays and interlocks remain active. `poolctl delay cancel --yes`
+clears current delays, rather than permanently disabling them.
